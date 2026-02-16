@@ -1,0 +1,35 @@
+- name: Setup EC2 with Python, Java, and Tomcat
+  hosts: ec2
+  gather_facts: false
+  become: true
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - name: Install Python 3.8 and pip
+      raw: yum install -y python38 python38-pip
+
+    - name: Verify Python
+      raw: python3.8 --version
+
+    - name: Install Java 17 (Amazon Corretto)
+      raw: yum install -y java-17-amazon-corretto-devel
+
+    - name: Verify Java
+      raw: java -version
+
+    - name: Install wget
+      raw: yum install -y wget
+
+    - name: Download Tomcat 10
+      raw: |
+        cd /opt
+        wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.18/bin/apache-tomcat-10.1.18.tar.gz
+
+    - name: Extract Tomcat
+      raw: |
+        cd /opt
+        tar -xzf apache-tomcat-10.1.18.tar.gz
+
+    - name: Start Tomcat
+      raw: /opt/apache-tomcat-10.1.18/bin/startup.sh
