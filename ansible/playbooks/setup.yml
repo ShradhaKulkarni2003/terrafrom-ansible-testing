@@ -6,11 +6,17 @@
   become_user: root
 
   tasks:
-    - name: Install Python 3.8 and pip
-      raw: yum install -y python38 python38-pip
+    # - name: Install Python 3.8 and pip
+    #   raw: yum install -y python38 python38-pip
+    
+    - name: Install Python 3 and pip
+      raw: yum install -y python3 python3-pip
 
+    # - name: Verify Python
+    #   raw: python3.8 --version
+    
     - name: Verify Python
-      raw: python3.8 --version
+      raw: python3 --version
 
     - name: Install Java 17 (Amazon Corretto)
       raw: yum install -y java-17-amazon-corretto-devel
