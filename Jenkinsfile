@@ -72,7 +72,7 @@ EOF
                     sh '''
                     cd ansible
                     ansible-playbook -i inventory.ini playbooks/setup.yml \
-                      --private-key $SSH_KEY \
+                      --private-key "$SSH_KEY" \
                       --become
                     '''
                 }
