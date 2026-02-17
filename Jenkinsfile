@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(
+            name: 'TF_ACTION',
+            choices: ['apply', 'destroy'],
+            description: 'Choose Terraform action'
+        )
+    }
+
     environment {
         AWS_DEFAULT_REGION = "us-east-1"
         ANSIBLE_HOST_KEY_CHECKING = "False"
@@ -37,6 +45,9 @@ pipeline {
         }
 
         stage('Terraform Apply') {
+            when {
+                expression { params.TF_ACTION == 'apply' }
+            }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                                   credentialsId: 'aws-creds']]) {
@@ -49,6 +60,9 @@ pipeline {
         }
 
         stage('Generate Ansible Inventory') {
+            when {
+                expression { params.TF_ACTION == 'apply' }
+            }
             steps {
                 sh '''
                 cd terraform/environments/dev
@@ -64,6 +78,9 @@ EOF
         }
 
         stage('Run Ansible Playbook') {
+            when {
+                expression { params.TF_ACTION == 'apply' }
+            }
             steps {
                 withCredentials([sshUserPrivateKey(
                     credentialsId: 'ec2-ssh-key',
@@ -79,12 +96,13 @@ EOF
             }
         }
 
-        stage('Terraform Destroy (Manual Approval)') {
+        stage('Terraform Destroy') {
             when {
-                expression { return false }   // disabled by default
+                expression { params.TF_ACTION == 'destroy' }
             }
             steps {
-                input message: "Destroy EC2 instance?"
+                input message: "⚠️ Confirm Terraform DESTROY?"
+
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                                   credentialsId: 'aws-creds']]) {
                     sh '''
