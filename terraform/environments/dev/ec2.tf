@@ -17,6 +17,12 @@ resource "aws_instance" "dev" {
 
   associate_public_ip_address = true
 
+  user_data = <<-EOF
+    #!/bin/bash
+    echo "ec2-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ec2-user
+    chmod 440 /etc/sudoers.d/ec2-user
+  EOF
+
   tags = {
     Name = "dev-ec2"
   }
